@@ -64,12 +64,12 @@ def pdf_reader(file): #iterates through all pages of PDF's and extracts plain te
     return text
 
 
+
 def show_pdf(file_path):
     with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8') #showing the pdf onto UI displayed once uploaded
-    # pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf">'
-    pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
-    st.markdown(pdf_display, unsafe_allow_html=True)
+        pdf_bytes = f.read()
+    st.write(pdf_bytes, format="pdf")
+
 
 
 def course_recommender(course_list):
