@@ -21,6 +21,12 @@ from Courses import ds_course, web_course, android_course, ios_course, uiux_cour
 import pafy
 import plotly.express as px
 import youtube_dl
+import os
+from dotenv import load_dotenv
+load_dotenv()
+host=os.environ["host"]
+user=os.environ["user"]
+password=os.environ["password"]
 
 def fetch_yt_video(link):
     video = pafy.new(link)
@@ -81,8 +87,8 @@ def course_recommender(course_list):
     return rec_course
 
 #make connection with my DB
-connection = pymysql.connect(host='localhost', user='root', password='areefa786') #remove db ,db='sra'
-cursor = connection.cursor()
+#connection = pymysql.connect(host=host, user=user, password=password,db='sra') #remove db ,db='sra'
+#cursor = connection.cursor()
 
 
 def insert_data(name, email, res_score, timestamp, no_of_pages, reco_field, cand_level, skills, recommended_skills,
@@ -96,8 +102,8 @@ def insert_data(name, email, res_score, timestamp, no_of_pages, reco_field, cand
     rec_values = (
     name, email, str(res_score), timestamp, str(no_of_pages), reco_field, cand_level, skills, recommended_skills,
     courses)
-    cursor.execute(insert_sql, rec_values)
-    connection.commit()
+    #cursor.execute(insert_sql, rec_values)
+    #connection.commit()
 
 
 st.set_page_config(
@@ -119,8 +125,8 @@ def run():
 
     # Create the DB
     db_sql = """CREATE DATABASE IF NOT EXISTS SRA;"""
-    cursor.execute(db_sql)
-    connection.select_db("sra")
+    #cursor.execute(db_sql)
+    #connection.select_db("sra")
 
     # Create table
     DB_table_name = 'user_data'
@@ -138,7 +144,7 @@ def run():
                      Recommended_courses VARCHAR(600) NOT NULL,
                      PRIMARY KEY (ID));
                     """
-    cursor.execute(table_sql)
+    #cursor.execute(table_sql)
     if choice == 'Normal User':
         # st.markdown('''<h4 style='text-align: left; color: #d73b5c;'>* Upload your resume, and get smart recommendation based on it."</h4>''',
         #             unsafe_allow_html=True)
@@ -386,51 +392,13 @@ def run():
 
 
 
-                connection.commit()
+                #connection.commit()
             else:
                 st.error('Something went wrong..')
     else:
         ## Admin Side
-        st.success('Welcome to Admin Side')
+        st.success('Welcome to Admin Side - Will be Coming Soon')
         # st.sidebar.subheader('**ID / Password Required!**')
-
-        ad_user = st.text_input("Username")
-        ad_password = st.text_input("Password", type='password')
-        if st.button('Login'):
-            if ad_user == 'machine_learning_hub' and ad_password == 'mlhub123':
-                st.success("Welcome Kushal")
-                # Display Data
-                cursor.execute('''SELECT*FROM user_data''')
-                data = cursor.fetchall()
-                st.header("**User's👨‍💻 Data**")
-                df = pd.DataFrame(data, columns=['ID', 'Name', 'Email', 'Resume Score', 'Timestamp', 'Total Page',
-                                                 'Predicted Field', 'User Level', 'Actual Skills', 'Recommended Skills',
-                                                 'Recommended Course'])
-                st.dataframe(df)
-                st.markdown(get_table_download_link(df, 'User_Data.csv', 'Download Report'), unsafe_allow_html=True)
-                ## Admin Side Data
-                query = 'select * from user_data;'
-                plot_data = pd.read_sql(query, connection)
-
-                ## Pie chart for predicted field recommendations
-                labels = plot_data.Predicted_Field.unique()
-                print(labels)
-                values = plot_data.Predicted_Field.value_counts()
-                print(values)
-                st.subheader("📈 **Pie-Chart for Predicted Field Recommendations**")
-                fig = px.pie(df, values=values, names=labels, title='Predicted Field according to the Skills')
-                st.plotly_chart(fig)
-
-                ### Pie chart for User's👨‍💻 Experienced Level
-                labels = plot_data.User_level.unique()
-                values = plot_data.User_level.value_counts()
-                st.subheader("📈 ** Pie-Chart for User's👨‍💻 Experienced Level**")
-                fig = px.pie(df, values=values, names=labels, title="Pie-Chart📈 for User's👨‍💻 Experienced Level")
-                st.plotly_chart(fig)
-
-
-            else:
-                st.error("Wrong ID & Password Provided")
 
 
 run()
